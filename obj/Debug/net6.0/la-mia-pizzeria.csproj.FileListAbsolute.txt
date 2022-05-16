@@ -1,0 +1,8 @@
+C:\Users\PC\source\repos\WebApp\WebApp\obj\Debug\net6.0\la-mia-pizzeria.csproj.AssemblyReference.cache
+C:\Users\PC\source\repos\WebApp\WebApp\obj\Debug\net6.0\la-mia-pizzeria.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\PC\source\repos\WebApp\WebApp\obj\Debug\net6.0\la-mia-pizzeria.AssemblyInfoInputs.cache
+C:\Users\PC\source\repos\WebApp\WebApp\obj\Debug\net6.0\la-mia-pizzeria.AssemblyInfo.cs
+C:\Users\PC\source\repos\WebApp\WebApp\obj\Debug\net6.0\la-mia-pizzeria.csproj.CoreCompileInputs.cache
+C:\Users\PC\source\repos\WebApp\WebApp\obj\Debug\net6.0\la-mia-pizzeria.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\PC\source\repos\WebApp\WebApp\obj\Debug\net6.0\la-mia-pizzeria.RazorAssemblyInfo.cache
+C:\Users\PC\source\repos\WebApp\WebApp\obj\Debug\net6.0\la-mia-pizzeria.RazorAssemblyInfo.cs
