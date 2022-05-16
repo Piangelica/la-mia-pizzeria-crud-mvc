@@ -1,39 +1,72 @@
-﻿using LaMiaPizzeria.Models;
-using LaMiaPizzeria.Utilities;
+﻿using LaMiaPizzeria.Utilities;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
+using NetCore_01.Data;
+using NetCore_01.Models;
 
 namespace LaMiaPizzeria.Controllers
 {
     public class PizzeController : Controller
     {
-        public IActionResult Index(string nome, string descrizione, double prezzo, string immagine)
-        {
-            List<Pizze> pizze = PizzeData.GetPizze();
-            return View("HomePage", pizze);
-        }
+       [HttpGet]
+       public IActionResult Index()
+    {
+            List<Pizze> pizze = new List<Pizze>();
 
-    
+        using(BlogContext db = new BlogContext())
+        {
+                pizze = db.Pizze.ToList<Pizze>();
+        }
+            return View("Homepage", pizze);
+            }
 
         [HttpGet]
 
         public IActionResult Details(int id)
         {
-            Pizze pizzaTrovata = GetPizzaById(id);
+           
+            using (BlogContext db = new BlogContext())
 
-            if (pizzaTrovata != null)
             {
-                return View("Details", pizzaTrovata);
-            }
-            else
-            {
-                return NotFound("La pizza con l'id " + id + "non è stato trovato");
-            }
+                try
+                {
 
+                    Pizze pizzaTrovata = db.Pizze
+                     .Where(Pizze => Pizze.Id == id)
+                     .First();
+                    return View("Details", pizzaTrovata);
+                } catch (InvalidOperationException ex)
+                {
+                    return NotFound("La pizza con l'id " + id + "non è stato trovato");
+                } catch (Exception ex)
+                {
+                    return BadRequest();
+            }
+            }
         }
+            /*if (pizzaTrovata != null)
+                {
+                   
+                }
+                else
+                
+
+
+
+                /*Pizze pizzaTrovata = GetPizzaById(id);
+
+                if (pizzaTrovata != null)
+                {
+                    return View("Details", pizzaTrovata);
+                }
+                else
+                {
+                    return NotFound("La pizza con l'id " + id + "non è stato trovato");
+                }
+
+            }*/
 
         [HttpGet]
-        public IActionResult Create()
+                public IActionResult Create()
         {
             return View("FormPizze");
         }
@@ -48,36 +81,88 @@ namespace LaMiaPizzeria.Controllers
                 return View("FormPizze", nuovaPizza);
             }
 
-            Pizze pizzaConId = new Pizze(PizzeData.GetPizze().Count, nuovaPizza.Immagine, nuovaPizza.Nome, nuovaPizza.Descrizione, nuovaPizza.Prezzo);
+             using(BlogContext db =new BlogContext())
 
-            PizzeData.GetPizze().Add(pizzaConId);
-            return RedirectToAction("Index");
-        }
+                    {
+                        Pizze pizzeDaCreare = new Pizze(nuovaPizza.Nome, nuovaPizza.Descrizione, nuovaPizza.Immagine);
+                        db.Pizze.Add(pizzeDaCreare);
+                        db.SaveChanges();
+                    }
+                    return RedirectToAction("Index");
+                }
+                // Pizze pizzaConId = new Pizze(PizzeData.GetPizze().Count, nuovaPizza.Immagine, nuovaPizza.Nome, nuovaPizza.Descrizione, nuovaPizza.Prezzo);
+
+                // PizzeData.GetPizze().Add(pizzaConId);
+                // return RedirectToAction("Index");
+            }
 
         [HttpGet]
         public IActionResult Update(int id)
         {
-            Pizze pizzaDaModificare = GetPizzaById(id);
-
-            if (pizzaDaModificare == null)
-            {
-                return NotFound();
+                Pizze? pizzaDaModificare = null;
+                using (BlogContext db = new BlogContext())
+                {
+                    pizzaDaModificare = db.Pizze
+                         .Where(Pizze => Pizze.Id == id)
+                         .FirstOrDefault();
+                }
+                if (pizzaDaModificare == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return View("Update", pizzaDaModificare);
+                }
             }
-            else
-            {
-                return View("Update", pizzaDaModificare);
-            }
 
+            /* Pizze pizzaDaModificare = GetPizzaById(id);
+
+             if (pizzaDaModificare == null)
+             {
+                 return NotFound();
+             }
+             else
+             {
+                 return View("Update", pizzaDaModificare);
+             }
+            */
         }
 
-        [HttpPost]
+       /*[HttpPost]
+
         public IActionResult Update(int id, Pizze model)
         {
             if (!ModelState.IsValid)
             {
                 return View("Update", model);
             }
+                Pizze? pizzaDaModificare = null;
+                using (BlogContext db = new BlogContext())
+                {
+                pizzaDaModificare = db.Pizze
+                        .Where(Pizze => Pizze.Id == id)
+                        .FirstOrDefault();
+            
 
+            if (pizzaDaModificare != null)
+            {
+                pizzaDaModificare.Nome = model.Nome;
+                pizzaDaModificare.Descrizione = model.Descrizione;
+                pizzaDaModificare.Immagine = model.Immagine;
+                pizzaDaModificare.Prezzo = model.Prezzo;
+
+                    db.SaveChanges();
+
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                return NotFound();
+            }
+            }
+
+            /*
             Pizze pizza = GetPizzaById(id);
             if (pizza != null)
             {
@@ -92,9 +177,9 @@ namespace LaMiaPizzeria.Controllers
             {
                 return NotFound();
             }
-
+*/
         }
-
+        /*
         private Pizze GetPizzaById(int id)
         {
             Pizze pizzaTrovata = null;
@@ -108,35 +193,49 @@ namespace LaMiaPizzeria.Controllers
                 }
             }
             return pizzaTrovata;
-        }
+        }*/
 
-        [HttpPost]
+ [HttpPost]
         public IActionResult Delete(int id)
-        {
-            int IndexPizzaDaRimuovere = -1;
-            List<Pizze> listaPizze = PizzeData.GetPizze();
-
-            for (int i = 0; i < PizzeData.GetPizze().Count; i++)
-            {
-                if (listaPizze[i].Id == id)
+{
+    using (BlogContext db = new BlogContext())
+    {
+     Pizze? pizzaDaRimuovere = db.Pizze
+    .Where(Pizze => Pizze.Id == id)
+    .First();
+     if(pizzaDaRimuovere != null)
                 {
-                    IndexPizzaDaRimuovere = i;
+                    db.Pizze.Remove(pizzaDaRimuovere);
+                    db.SaveChanges();
+
+                    return RedirectToAction("Index");
+                }else
+                {
+                    return NotFound();
                 }
             }
-            if (IndexPizzaDaRimuovere != -1)
-            {
-                PizzeData.GetPizze().RemoveAt(IndexPizzaDaRimuovere);
-                return RedirectToAction("Index");
+}
 
-            }
-            else
-            {
-                return NotFound();
-            }
+        /*
+    int IndexPizzaDaRimuovere = -1;
+    List<Pizze> listaPizze = PizzeData.GetPizze();
 
+    for (int i = 0; i < PizzeData.GetPizze().Count; i++)
+    {
+        if (listaPizze[i].Id == id)
+        {
+            IndexPizzaDaRimuovere = i;
         }
     }
+    if (IndexPizzaDaRimuovere != -1)
+    {
+        PizzeData.GetPizze().RemoveAt(IndexPizzaDaRimuovere);
+        return RedirectToAction("Index");
 
-
-
-}
+    }
+    else
+    {
+        return NotFound();
+    }
+*/
+    
