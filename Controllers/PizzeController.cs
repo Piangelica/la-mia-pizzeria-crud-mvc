@@ -1,21 +1,30 @@
-﻿using LaMiaPizzeria.Utilities;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using NetCore_01.Data;
 using NetCore_01.Models;
 
-namespace LaMiaPizzeria.Controllers
+
+namespace NetCore_01.Controllers
 {
     public class PizzeController : Controller
     {
        [HttpGet]
-       public IActionResult Index()
+       public IActionResult Index(string SearchString)
     {
             List<Pizze> pizze = new List<Pizze>();
 
-        using(BlogContext db = new BlogContext())
+        using(PizzeContext db = new PizzeContext())
+
         {
-                pizze = db.Pizze.ToList<Pizze>();
+                if (SearchString != null)
+                {
+                    pizze = db.Pizze.Where(pizze => pizze.Nome.Contains(SearchString) || pizze.Descrizione.Contains(SearchString)).ToList<Pizze>();
+                }
+                else
+                {
+                    pizze = db.Pizze.ToList<Pizze>();
+                }
         }
+
             return View("Homepage", pizze);
             }
 
@@ -24,7 +33,7 @@ namespace LaMiaPizzeria.Controllers
         public IActionResult Details(int id)
         {
            
-            using (BlogContext db = new BlogContext())
+            using (PizzeContext db = new PizzeContext())
 
             {
                 try
@@ -33,14 +42,15 @@ namespace LaMiaPizzeria.Controllers
                     Pizze pizzaTrovata = db.Pizze
                      .Where(Pizze => Pizze.Id == id)
                      .First();
+
                     return View("Details", pizzaTrovata);
                 } catch (InvalidOperationException ex)
                 {
-                    return NotFound("La pizza con l'id " + id + "non è stato trovato");
+                    return NotFound("La pizza con l'id " + id + "non è stato trovata");
                 } catch (Exception ex)
                 {
                     return BadRequest();
-            }
+                }
             }
         }
             /*if (pizzaTrovata != null)
@@ -66,7 +76,7 @@ namespace LaMiaPizzeria.Controllers
             }*/
 
         [HttpGet]
-                public IActionResult Create()
+        public IActionResult Create()
         {
             return View("FormPizze");
         }
@@ -81,7 +91,7 @@ namespace LaMiaPizzeria.Controllers
                 return View("FormPizze", nuovaPizza);
             }
 
-             using(BlogContext db =new BlogContext())
+             using(PizzeContext db =new PizzeContext())
 
                     {
                         Pizze pizzeDaCreare = new Pizze(nuovaPizza.Nome, nuovaPizza.Descrizione, nuovaPizza.Immagine);
@@ -94,13 +104,13 @@ namespace LaMiaPizzeria.Controllers
 
                 // PizzeData.GetPizze().Add(pizzaConId);
                 // return RedirectToAction("Index");
-            }
+            
 
         [HttpGet]
         public IActionResult Update(int id)
         {
                 Pizze? pizzaDaModificare = null;
-                using (BlogContext db = new BlogContext())
+                using (PizzeContext db = new PizzeContext())
                 {
                     pizzaDaModificare = db.Pizze
                          .Where(Pizze => Pizze.Id == id)
@@ -116,69 +126,102 @@ namespace LaMiaPizzeria.Controllers
                 }
             }
 
-            /* Pizze pizzaDaModificare = GetPizzaById(id);
-
-             if (pizzaDaModificare == null)
-             {
-                 return NotFound();
-             }
-             else
-             {
-                 return View("Update", pizzaDaModificare);
-             }
-            */
-        }
-
-       /*[HttpPost]
-
+        [HttpPost]
         public IActionResult Update(int id, Pizze model)
         {
             if (!ModelState.IsValid)
             {
                 return View("Update", model);
             }
-                Pizze? pizzaDaModificare = null;
-                using (BlogContext db = new BlogContext())
-                {
-                pizzaDaModificare = db.Pizze
-                        .Where(Pizze => Pizze.Id == id)
-                        .FirstOrDefault();
-            
 
-            if (pizzaDaModificare != null)
+            Post pizzeToEdit = null;
+
+            using (PizzeContext db = new PizzeContext())
             {
-                pizzaDaModificare.Nome = model.Nome;
-                pizzaDaModificare.Descrizione = model.Descrizione;
-                pizzaDaModificare.Immagine = model.Immagine;
-                pizzaDaModificare.Prezzo = model.Prezzo;
+                pizzeToEdit = db.Pizze
+                     .Where(pizze => pizze.Id == id)
+                     .FirstOrDefault();
+
+
+                if (pizzeToEdit != null)
+                {
+                    pizzeToEdit.Title = model.Nome;
+                    pizzeToEdit.Description = model.Descrizione;
+                    pizzeToEdit.Image = model.Immagine;
 
                     db.SaveChanges();
 
-                return RedirectToAction("Index");
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
-            else
-            {
-                return NotFound();
-            }
-            }
-
-            /*
-            Pizze pizza = GetPizzaById(id);
-            if (pizza != null)
-            {
-                pizza.Nome = model.Nome;
-                pizza.Descrizione = model.Descrizione;
-                pizza.Immagine = model.Immagine;
-                pizza.Prezzo = model.Prezzo;
-
-                return RedirectToAction("Index");
-            }
-            else
-            {
-                return NotFound();
-            }
-*/
         }
+        /* Pizze pizzaDaModificare = GetPizzaById(id);
+
+         if (pizzaDaModificare == null)
+         {
+             return NotFound();
+         }
+         else
+         {
+             return View("Update", pizzaDaModificare);
+         }
+        */
+
+
+        /*[HttpPost]
+
+         public IActionResult Update(int id, Pizze model)
+         {
+             if (!ModelState.IsValid)
+             {
+                 return View("Update", model);
+             }
+                 Pizze? pizzaDaModificare = null;
+                 using (BlogContext db = new BlogContext())
+                 {
+                 pizzaDaModificare = db.Pizze
+                         .Where(Pizze => Pizze.Id == id)
+                         .FirstOrDefault();
+
+
+             if (pizzaDaModificare != null)
+             {
+                 pizzaDaModificare.Nome = model.Nome;
+                 pizzaDaModificare.Descrizione = model.Descrizione;
+                 pizzaDaModificare.Immagine = model.Immagine;
+                 pizzaDaModificare.Prezzo = model.Prezzo;
+
+                     db.SaveChanges();
+
+                 return RedirectToAction("Index");
+             }
+             else
+             {
+                 return NotFound();
+             }
+             }
+
+             /*
+             Pizze pizza = GetPizzaById(id);
+             if (pizza != null)
+             {
+                 pizza.Nome = model.Nome;
+                 pizza.Descrizione = model.Descrizione;
+                 pizza.Immagine = model.Immagine;
+                 pizza.Prezzo = model.Prezzo;
+
+                 return RedirectToAction("Index");
+             }
+             else
+             {
+                 return NotFound();
+             }
+ */
+    }
         /*
         private Pizze GetPizzaById(int id)
         {
@@ -196,46 +239,57 @@ namespace LaMiaPizzeria.Controllers
         }*/
 
  [HttpPost]
-        public IActionResult Delete(int id)
+    public IActionResult Delete(int id)
 {
-    using (BlogContext db = new BlogContext())
+    using PizzeContext db = new PizzeContext();
+    Pizze? pizzaDaRimuovere = db.Pizze
+.Where(Pizze => Pizze.Id == id)
+.First();
+    if (pizzaDaRimuovere != null)
     {
-     Pizze? pizzaDaRimuovere = db.Pizze
-    .Where(Pizze => Pizze.Id == id)
-    .First();
-     if(pizzaDaRimuovere != null)
-                {
-                    db.Pizze.Remove(pizzaDaRimuovere);
-                    db.SaveChanges();
+        db.Pizze.Remove(pizzaDaRimuovere);
+        db.SaveChanges();
 
-                    return RedirectToAction("Index");
-                }else
-                {
-                    return NotFound();
-                }
-            }
-}
-
-        /*
-    int IndexPizzaDaRimuovere = -1;
-    List<Pizze> listaPizze = PizzeData.GetPizze();
-
-    for (int i = 0; i < PizzeData.GetPizze().Count; i++)
-    {
-        if (listaPizze[i].Id == id)
-        {
-            IndexPizzaDaRimuovere = i;
-        }
-    }
-    if (IndexPizzaDaRimuovere != -1)
-    {
-        PizzeData.GetPizze().RemoveAt(IndexPizzaDaRimuovere);
-        return RedirectToAction("Index");
-
+        return RedirectToAction("Index", "Pizze");
     }
     else
     {
         return NotFound();
     }
+}
+}
+
+    }
+}
+    /*IActionResult NotFound()
+    {
+        throw new NotImplementedException();
+    }
+
+    IActionResult RedirectToAction(string v)
+{
+    throw new NotImplementedException();
+}
+
+/*
+int IndexPizzaDaRimuovere = -1;
+List<Pizze> listaPizze = PizzeData.GetPizze();
+
+for (int i = 0; i < PizzeData.GetPizze().Count; i++)
+{
+if (listaPizze[i].Id == id)
+{
+    IndexPizzaDaRimuovere = i;
+}
+}
+if (IndexPizzaDaRimuovere != -1)
+{
+PizzeData.GetPizze().RemoveAt(IndexPizzaDaRimuovere);
+return RedirectToAction("Index");
+
+}
+else
+{
+return NotFound();
+}
 */
-    
