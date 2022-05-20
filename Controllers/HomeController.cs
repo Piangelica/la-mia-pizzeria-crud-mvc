@@ -1,10 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NetCore_01.Models;
 using System.Diagnostics;
-using WebApp.Models;
 
 namespace LaMiaPizzeria.Controllers
 {
     public class HomeController : Controller
+    {
+        public IActionResult Index()
+    {
+        return View("Index");
+    }
+    }
+    /*public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
 
@@ -32,4 +39,4 @@ namespace LaMiaPizzeria.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
-}
+}/*
