@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NetCore_01.Data;
 using NetCore_01.Models;
 
@@ -23,25 +24,32 @@ if (search != null && search != "")
                 }
                 else
                 {
-                    pizze = db.Pizze.ToList<Pizze>();
+                    pizze = db.Pizze.Include(pizze=>pizze.Category).ToList<Pizze>(); ;
                 }
             }
 
             return Ok(pizze);
+
         }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            // http://localhost:<port>/api/posts/delete/2
+
+        }
+
+
     }
 }
-            
 
 
+/*
+pizze = db.Pizze.ToList<Pizze>();
+}
+return Ok( pizze);
+}
+}*/
 
-
-                /*
-                pizze = db.Pizze.ToList<Pizze>();
-            }
-            return Ok( pizze);
-        }
-    }*/
-    
 
 
